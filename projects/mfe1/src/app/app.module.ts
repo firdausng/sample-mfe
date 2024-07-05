@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {APP_INITIALIZER, NgModule} from '@angular/core';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { FlightsModule } from './flights/flights.module';
@@ -17,7 +17,14 @@ import {AppRoutingModule} from "./app-routing.module";
     HomeComponent,
     AppComponent,
   ],
-  providers: [],
+  providers: [
+    // {
+    //   provide: APP_INITIALIZER,
+    //   useFactory: () =>{
+    //     console.log('MFE App initializing...');
+    //   }
+    // }
+  ],
   bootstrap: [
     AppComponent
   ]
