@@ -5,5 +5,9 @@ export const FLIGHTS_ROUTES: Routes = [
     {
       path: 'flights-search',
       component: FlightsSearchComponent
-    }
+    },
+  {
+    path: 'abc',
+    component: FlightsSearchComponent
+  },
 ];
