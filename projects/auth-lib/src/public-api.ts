@@ -4,3 +4,4 @@
 
 export * from './lib/auth-lib.service';
 export * from './lib/auth-lib.component';
+export * from './lib/token.service';

@@ -29,7 +29,7 @@ import {ConfigService} from "config-lib";
         configService.updateNav({
           name: 'Test',
           navLink: '/flights/test',
-          permissions: ['onehub-test']
+          // permissions: ['onehub-test']
         });
 
        return configService.routeConfigurations?.mfeRoutes['flights'];

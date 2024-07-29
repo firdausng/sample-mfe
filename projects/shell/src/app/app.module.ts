@@ -5,14 +5,13 @@ import {HomeComponent} from './home/home.component';
 import {NotFoundComponent} from './not-found/not-found.component';
 import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
-import {AppRoutingModule} from "./app-routing.module";
 import {ConfigService} from "config-lib";
-import {Routes, ROUTES} from "@angular/router";
+import {Route, RouterModule, Routes, ROUTES} from "@angular/router";
 import {take, tap} from "rxjs";
 import {loadRemoteModule} from "@angular-architects/module-federation";
-import {LoadingService} from "./loading.service";
-import {LoadingSpinnerComponent} from "./loading-spinner.component";
-import {AuthService, provideAuth0} from "@auth0/auth0-angular";
+import {AuthGuard, AuthService, provideAuth0} from "@auth0/auth0-angular";
+import {TokenService} from "auth-lib";
+import {authGuard} from "./AuthGuard";
 
 // import { SharedLibModule } from 'projects/shared-lib/src/public-api';
 
@@ -21,33 +20,31 @@ import {AuthService, provideAuth0} from "@auth0/auth0-angular";
     BrowserModule,
     HttpClientModule,
     FormsModule,
-    AppRoutingModule,
+    RouterModule.forRoot([]),
   ],
   declarations: [
     AppComponent,
-    LoadingSpinnerComponent,
     HomeComponent,
     NotFoundComponent
   ],
   providers: [
-    // provideAuth0({
-    //   domain: 'firdausng.au.auth0.com',
-    //   clientId: 'eUE8JCYqY68DBDH2mUJy9tyAV01tMzyU',
-    //   authorizationParams: {
-    //     redirect_uri: window.location.origin
-    //   }
-    // }),
+    provideAuth0({
+      domain: 'firdausng.au.auth0.com',
+      clientId: 'eUE8JCYqY68DBDH2mUJy9tyAV01tMzyU',
+      authorizationParams: {
+        redirect_uri: window.location.origin
+      }
+    }),
     {
       provide: APP_INITIALIZER,
       useFactory: () => {
         console.log('Shell App initializing...');
-        const loadingService = inject(LoadingService);
 
-        loadingService.setLoading(true);
+        // const tokenService = inject(TokenService);
+
         const configService = inject(ConfigService);
         return () => configService.fetchRoutesConfiguration().pipe(
           take(1),
-          tap(routes => loadingService.setLoading(false))
         );
       },
       multi: true
@@ -62,15 +59,22 @@ import {AuthService, provideAuth0} from "@auth0/auth0-angular";
 
         const routes: Routes = [
           {
-            path: '',
-            component: HomeComponent,
-            pathMatch: 'full',
-          },
-          {
             path: '**',
             component: NotFoundComponent
           }
         ];
+
+        const protectedRoutes: Route = {
+          path: '',
+          canActivate: [authGuard],
+          children: [
+            {
+              path: '',
+              component: HomeComponent,
+              pathMatch: 'full',
+            }
+          ]
+        };
 
         // Process serverRoutes (if needed)
         shellRoutes.forEach(route => {
@@ -84,7 +88,18 @@ import {AuthService, provideAuth0} from "@auth0/auth0-angular";
 
           console.groupEnd()
           // use unshift to add module in front of the array
-          routes.unshift({
+          // routes.unshift({
+          //   path: route.path,
+          //   loadChildren: () =>
+          //     loadRemoteModule({
+          //       type: 'module',
+          //       remoteEntry: route.remoteEntry,
+          //       exposedModule: route.exposedModule
+          //     })
+          //       .then(m => m[route.moduleName])
+          // }); // Push server routes into the main routes array
+
+          protectedRoutes.children?.push({
             path: route.path,
             loadChildren: () =>
               loadRemoteModule({
@@ -93,21 +108,16 @@ import {AuthService, provideAuth0} from "@auth0/auth0-angular";
                 exposedModule: route.exposedModule
               })
                 .then(m => m[route.moduleName])
-          }); // Push server routes into the main routes array
+          });
+
         })
+
+        routes.unshift(protectedRoutes);
+
         console.log(routes);
 
         return routes;
-        //  const routes: Routes = [
-        //    ...FLIGHTS_ROUTES,
-        //    {
-        //      path: 'test',
-        //      component: FlightsSearchComponent
-        //    }
-        //  ];
-        //  return routes;
       },
-      deps: [ConfigService],
       multi: true
     }
   ],

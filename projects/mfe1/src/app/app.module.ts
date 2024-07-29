@@ -5,7 +5,6 @@ import { HomeComponent } from './home/home.component';
 import { FlightsModule } from './flights/flights.module';
 import { HttpClientModule } from '@angular/common/http';
 import {AppRoutingModule} from "./app-routing.module";
-import {LoadingService} from "../../../shell/src/app/loading.service";
 import {ConfigService} from "config-lib";
 import {take, tap} from "rxjs";
 import {Routes, ROUTES} from "@angular/router";
@@ -28,12 +27,9 @@ import {loadRemoteModule} from "@angular-architects/module-federation";
       provide: APP_INITIALIZER,
       useFactory: () => {
         console.log('[APP_INITIALIZER]Flight MFE App initializing...');
-        const loadingService = inject(LoadingService);
-        loadingService.setLoading(true);
         const configService = inject(ConfigService);
         return () => configService.fetchRoutesConfiguration().pipe(
           take(1),
-          tap(routes => loadingService.setLoading(false))
         );
       },
       multi: true
