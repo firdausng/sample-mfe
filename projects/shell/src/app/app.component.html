@@ -1,13 +1,16 @@
-<ul>
-  <li><img src="../assets/angular.png" width="50"></li>
-  @for(item of configService.routeConfigurations.header.navList; track item.name){
-    <li><a [routerLink]="item.navLink">{{item.name}}</a></li>
-  }
+@if(auth.isAuthenticated$ | async){
+  <ul>
+    <li><img src="../assets/angular.png" width="50"></li>
+    @for(item of configService.routeConfigurations.header.navList; track item.name){
+      <li><a [routerLink]="item.navLink">{{item.name}}</a></li>
+    }
 
-<!--  <li><a routerLink="/">Home</a></li>-->
-<!--  <li><a routerLink="/flights/flights-search">Flights</a></li>-->
-</ul>
-<!--<app-auth-button />-->
+    <!--  <li><a routerLink="/">Home</a></li>-->
+    <!--  <li><a routerLink="/flights/flights-search">Flights</a></li>-->
+  </ul>
+  <!--<app-auth-button />-->
 
-<router-outlet></router-outlet>
-
+  <router-outlet></router-outlet>
+} @else {
+  <p>loading</p>
+}

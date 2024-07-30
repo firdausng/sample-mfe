@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
-import {Observable, from, of, BehaviorSubject} from 'rxjs';
-import { switchMap, tap } from 'rxjs/operators';
+import {Observable, from, BehaviorSubject} from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'

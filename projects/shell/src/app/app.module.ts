@@ -6,11 +6,10 @@ import {NotFoundComponent} from './not-found/not-found.component';
 import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {ConfigService} from "config-lib";
-import {Route, RouterModule, Routes, ROUTES} from "@angular/router";
-import {take, tap} from "rxjs";
+import {Route, Router, RouterModule, Routes, ROUTES} from "@angular/router";
+import { take} from "rxjs";
 import {loadRemoteModule} from "@angular-architects/module-federation";
-import {AuthGuard, AuthService, provideAuth0} from "@auth0/auth0-angular";
-import {TokenService} from "auth-lib";
+import {AuthService, provideAuth0} from "@auth0/auth0-angular";
 import {authGuard} from "./AuthGuard";
 
 // import { SharedLibModule } from 'projects/shared-lib/src/public-api';
@@ -40,17 +39,22 @@ import {authGuard} from "./AuthGuard";
       useFactory: () => {
         console.log('Shell App initializing...');
 
-        // const tokenService = inject(TokenService);
+        const router = inject(Router);
+        // const authService = inject(AuthService);
+        // const injector = inject(Injector);
+        // const auth = injector.get(AuthService);
 
         const configService = inject(ConfigService);
         return () => configService.fetchRoutesConfiguration().pipe(
           take(1),
         );
       },
+      deps:[AuthService],
       multi: true
     },
     {
-      provide: ROUTES,
+      // provide: ROUTES,
+      provide: "abc",
       useFactory: () => {
         console.log('Shell App ROUTES initializing...');
         const configService = inject(ConfigService);

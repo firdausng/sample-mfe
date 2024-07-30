@@ -1,9 +1,13 @@
-import { Injectable } from '@angular/core';
-import {Route, Routes} from '@angular/router';
-import {delay, from, Observable, of, Subject, tap} from "rxjs";
+import {inject, Injectable} from '@angular/core';
+import {Route, Router, Routes} from '@angular/router';
+import {delay, from, Observable, of, Subject, switchMap, tap} from "rxjs";
 import {FLIGHTS_ROUTES} from "../../../mfe1/src/app/flights/flights.routes";
 import {FlightsSearchComponent} from "../../../mfe1/src/app/flights/flights-search/flights-search.component";
 import {AuthService} from "@auth0/auth0-angular";
+import {NotFoundComponent} from "../../../shell/src/app/not-found/not-found.component";
+import {authGuard} from "../../../shell/src/app/AuthGuard";
+import {HomeComponent} from "../../../shell/src/app/home/home.component";
+import {loadRemoteModule} from "@angular-architects/module-federation";
 
 @Injectable({
   providedIn: 'root'
@@ -16,19 +20,77 @@ export class ConfigService {
   private appConfigurationSource = new Subject<AppConfiguration| null>();
   appConfiguration$ = this.appConfigurationSource.asObservable();
 
+  constructor(private authService: AuthService, private router: Router) {}
+
   fetchRoutesConfiguration(): Observable<AppConfiguration> {
-    // this.authService.isAuthenticated$.pipe(
-    //   tap((x) => {
-    //     if(!x){
-    //       this.authService.loginWithRedirect();
-    //     }
-    //   })
-    // );
-    return of<AppConfiguration>(configuration).pipe(
-      delay(1000),
-      tap(x => {
-        this.routeConfigurations = x;
-        this.appConfigurationSource.next(x);
+    return this.authService.isAuthenticated$.pipe(
+      tap((x) => {
+        if(!x){
+          this.authService.loginWithRedirect();
+        }
+      }),
+      switchMap(() => this.authService.getAccessTokenSilently()),
+      switchMap((token) => {
+        console.log('token', token);
+        return of<AppConfiguration>(configuration).pipe(
+          delay(1000),
+          tap(x => {
+            this.routeConfigurations = x;
+            this.appConfigurationSource.next(x);
+            console.log('this.routeConfigurations', this.routeConfigurations);
+
+            console.log(this.routeConfigurations.shellRoutes)
+            const shellRoutes = this.routeConfigurations.shellRoutes;
+
+            const routes: Routes = [
+              {
+                path: '**',
+                component: NotFoundComponent
+              }
+            ];
+
+            const protectedRoutes: Route = {
+              path: '',
+              canActivate: [authGuard],
+              children: [
+                {
+                  path: '',
+                  component: HomeComponent,
+                  pathMatch: 'full',
+                }
+              ]
+            };
+
+            // Process serverRoutes (if needed)
+            shellRoutes.forEach(route => {
+              console.group('get route')
+              console.log(route);
+              console.log({
+                type: 'module',
+                remoteEntry: route.remoteEntry,
+                exposedModule: route.exposedModule
+              })
+
+              console.groupEnd()
+
+              protectedRoutes.children?.push({
+                path: route.path,
+                loadChildren: () =>
+                  loadRemoteModule({
+                    type: 'module',
+                    remoteEntry: route.remoteEntry,
+                    exposedModule: route.exposedModule
+                  })
+                    .then(m => m[route.moduleName])
+              });
+
+            })
+
+            routes.unshift(protectedRoutes);
+            console.log("routes", routes);
+            this.router.resetConfig(routes);
+          })
+        )
       })
     )
   }
