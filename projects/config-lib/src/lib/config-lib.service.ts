@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {Route, Router, Routes} from '@angular/router';
-import {delay, from, Observable, of, Subject, switchMap, tap} from "rxjs";
+import {concatMap, delay, from, Observable, of, Subject, switchMap, tap} from "rxjs";
 import {FLIGHTS_ROUTES} from "../../../mfe1/src/app/flights/flights.routes";
 import {FlightsSearchComponent} from "../../../mfe1/src/app/flights/flights-search/flights-search.component";
 import {AuthService} from "@auth0/auth0-angular";
@@ -23,13 +23,14 @@ export class ConfigService {
   constructor(private authService: AuthService, private router: Router) {}
 
   fetchRoutesConfiguration(): Observable<AppConfiguration> {
+    console.log('Fetching routes configuration...');
     return this.authService.isAuthenticated$.pipe(
-      tap((x) => {
+      concatMap((x) => {
         if(!x){
-          this.authService.loginWithRedirect();
+          return this.authService.loginWithRedirect();
         }
+        return this.authService.getAccessTokenSilently();
       }),
-      switchMap(() => this.authService.getAccessTokenSilently()),
       switchMap((token) => {
         console.log('token', token);
         return of<AppConfiguration>(configuration).pipe(

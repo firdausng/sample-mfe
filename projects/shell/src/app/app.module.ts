@@ -9,7 +9,7 @@ import {ConfigService} from "config-lib";
 import {Route, Router, RouterModule, Routes, ROUTES} from "@angular/router";
 import { take} from "rxjs";
 import {loadRemoteModule} from "@angular-architects/module-federation";
-import {AuthService, provideAuth0} from "@auth0/auth0-angular";
+import {AuthClientConfig, AuthConfigService, AuthModule, AuthService, provideAuth0} from "@auth0/auth0-angular";
 import {authGuard} from "./AuthGuard";
 
 // import { SharedLibModule } from 'projects/shared-lib/src/public-api';
@@ -20,6 +20,7 @@ import {authGuard} from "./AuthGuard";
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([]),
+    AuthModule.forRoot(),
   ],
   declarations: [
     AppComponent,
@@ -27,19 +28,25 @@ import {authGuard} from "./AuthGuard";
     NotFoundComponent
   ],
   providers: [
-    provideAuth0({
-      domain: 'firdausng.au.auth0.com',
-      clientId: 'eUE8JCYqY68DBDH2mUJy9tyAV01tMzyU',
-      authorizationParams: {
-        redirect_uri: window.location.origin
-      }
-    }),
+    // provideAuth0(),
+    {
+      // Provide the config here
+      provide: AuthConfigService,
+      useFactory: () => ({
+        domain: JSON.parse(sessionStorage.getItem('settings')!).auth.domain,
+        clientId: JSON.parse(sessionStorage.getItem('settings')!).auth.clientId,
+        authorizationParams: {
+          redirect_uri: window.location.origin
+        }
+      })
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: () => {
         console.log('Shell App initializing...');
 
         const router = inject(Router);
+        const authConfigService = inject(AuthConfigService);
         // const authService = inject(AuthService);
         // const injector = inject(Injector);
         // const auth = injector.get(AuthService);
