@@ -3,4 +3,3 @@
  */
 
 export * from './lib/config-lib.service';
-export * from './lib/config-lib.component';

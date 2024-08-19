@@ -110,9 +110,16 @@ export interface MfeRoute {
   moduleName: string;
 }
 
+export interface MfeComponent {
+  componentName: string;
+  remoteEntry: string;
+  exposedModule: string;
+}
+
 
 export interface AppConfiguration {
   shellRoutes: MfeRoute[],
+  components: MfeComponent[],
   mfeRoutes: Record<string, Routes>,
   header: {
     navList: NavItem[]
@@ -130,8 +137,15 @@ const configuration: AppConfiguration = {
     {
       path: 'flights',
       remoteEntry: 'http://localhost:4203/remoteEntry.js',
-      exposedModule: './Module',
+      exposedModule: './flight',
       moduleName: 'FlightsModule'
+    },
+  ],
+  components: [
+    {
+      componentName: 'FlightsSummaryComponent',
+      remoteEntry: 'http://localhost:4203/remoteEntry.js',
+      exposedModule: './flight-summary',
     },
   ],
   header: {
