@@ -18,9 +18,10 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
   }
 
-  async load(): Promise<void> {
+  async load(index: number): Promise<void> {
 
-    const remoteComponent = this.configService.routeConfigurations.components[0];
+    this.viewContainer.clear();
+    const remoteComponent = this.configService.routeConfigurations.components[index];
     console.log(remoteComponent);
     const m = await loadRemoteModule({
       type: 'module',
@@ -29,8 +30,6 @@ export class HomeComponent implements OnInit {
     });
 
     const ref = this.viewContainer.createComponent(m[remoteComponent.componentName]);
-    // const compInstance = ref.instance;
-    // compInstance.ngOnInit()
   }
 
 }

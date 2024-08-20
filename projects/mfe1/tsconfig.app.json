@@ -6,8 +6,8 @@
   },
   "files": [
     "src/main.ts",
-    "src/polyfills.ts",
     "src/app/flight-summary/flights-summary.component.ts",
+    "src/app/flight-detail/flights-detail.component.ts",
   ],
   "include": [
     "src/**/*.d.ts"

@@ -8,6 +8,7 @@ import {NotFoundComponent} from "../../../shell/src/app/not-found/not-found.comp
 import {authGuard} from "../../../shell/src/app/AuthGuard";
 import {HomeComponent} from "../../../shell/src/app/home/home.component";
 import {loadRemoteModule} from "@angular-architects/module-federation";
+import {FlightsDetailComponent} from "../../../mfe1/src/app/flight-detail/flights-detail.component";
 
 @Injectable({
   providedIn: 'root'
@@ -146,6 +147,11 @@ const configuration: AppConfiguration = {
       componentName: 'FlightsSummaryComponent',
       remoteEntry: 'http://localhost:4203/remoteEntry.js',
       exposedModule: './flight-summary',
+    },
+    {
+      componentName: 'FlightsDetailComponent',
+      remoteEntry: 'http://localhost:4203/remoteEntry.js',
+      exposedModule: './flight-detail',
     },
   ],
   header: {

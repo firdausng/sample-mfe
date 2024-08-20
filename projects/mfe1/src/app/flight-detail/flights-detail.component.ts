@@ -2,11 +2,11 @@ import {Component} from '@angular/core';
 import {AuthLibService} from "auth-lib";
 
 @Component({
-  selector: 'app-flights-summary',
+  selector: 'app-flights-detail',
   standalone: true,
-  templateUrl: './flights-summary.component.html'
+  templateUrl: './flights-detail.component.html'
 })
-export class FlightsSummaryComponent {
+export class FlightsDetailComponent {
   user = this.service.user;
   constructor(private service: AuthLibService) { }
 }
